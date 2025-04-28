@@ -30,40 +30,41 @@ class StartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('APV Debug Demo')),
-        body: Center(
-            child: Column(children: [
-          ElevatedButton(
-              child: const Text('Basic'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const PlatformViewHolder(
-                          viewType: PlatformViewType.kBasic)),
-                );
-              }),
-          ElevatedButton(
-              child: const Text('Input'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const PlatformViewHolder(
-                          viewType: PlatformViewType.kInput)),
-                );
-              }),
-          ElevatedButton(
-              child: const Text('Input (Flutter)'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const PlatformViewHolder(
-                          viewType: PlatformViewType.kInputPureFlutter)),
-                );
-              }),
-          ElevatedButton(
+      appBar: AppBar(title: const Text('APV Debug Demo')),
+      body: Center(
+        child: Column(
+          children: [
+            ElevatedButton(
+                child: const Text('Basic'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const PlatformViewHolder(
+                            viewType: PlatformViewType.kBasic)),
+                  );
+                }),
+            ElevatedButton(
+                child: const Text('Input'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const PlatformViewHolder(
+                            viewType: PlatformViewType.kInput)),
+                  );
+                }),
+            ElevatedButton(
+                child: const Text('Input (Flutter)'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const PlatformViewHolder(
+                            viewType: PlatformViewType.kInputPureFlutter)),
+                  );
+                }),
+            ElevatedButton(
               child: const Text('Animated Surface View'),
               onPressed: () {
                 Navigator.push(
@@ -72,7 +73,22 @@ class StartPage extends StatelessWidget {
                       builder: (context) => const PlatformViewHolder(
                           viewType: PlatformViewType.kAnimatedSurfaceView)),
                 );
-              }),
-        ])));
+              },
+            ),
+            ElevatedButton(
+              child: const Text('HCPP'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PlatformViewHolder(
+                          viewType: PlatformViewType.kHcpp)),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

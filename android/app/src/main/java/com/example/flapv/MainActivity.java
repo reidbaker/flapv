@@ -11,5 +11,6 @@ public class MainActivity extends FlutterActivity {
       registry.registerViewFactory("static-text-view", new StaticTextViewFactory());
       registry.registerViewFactory("input-grid-view", new InputGridViewFactory());
       registry.registerViewFactory("animated-surface-view", new AnimatedSurfaceViewFactory());
+      registry.registerViewFactory("hybrid-composition++", new AnimatedSurfaceViewFactory());
     }
 }

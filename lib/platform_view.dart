@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
 
@@ -61,6 +63,40 @@ class PlatformView extends StatelessWidget {
   const PlatformView({Key? key, required this.viewType}) : super(key: key);
   final PlatformViewType viewType;
 
+  Widget createChild(PlatformViewType viewType, Map<String, dynamic> creationParams) {
+    if (viewType == PlatformViewType.kInputPureFlutter) {
+      return InputGridViewWidget();
+    }
+    if (viewType == PlatformViewType.kHcpp) {
+      return PlatformViewLink(
+      viewType: platformViewTypeAsString(viewType),
+      surfaceFactory: (BuildContext context, PlatformViewController controller) {
+        return AndroidViewSurface(
+          controller: controller as AndroidViewController,
+          gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+          hitTestBehavior: PlatformViewHitTestBehavior.translucent,
+        );
+      },
+      onCreatePlatformView: (PlatformViewCreationParams params) {
+        return PlatformViewsService.initHybridAndroidView(
+            id: params.id,
+            viewType: platformViewTypeAsString(viewType),
+            layoutDirection: TextDirection.ltr,
+            creationParamsCodec: const StandardMessageCodec(),
+          )
+          ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+          ..create();
+      },
+    );
+    }
+    return AndroidView(
+                    viewType: platformViewTypeAsString(viewType),
+                    layoutDirection: TextDirection.ltr,
+                    creationParams: creationParams,
+                    creationParamsCodec: const StandardMessageCodec(),
+                  );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Pass parameters to the platform side.
@@ -71,14 +107,8 @@ class PlatformView extends StatelessWidget {
         // Texture Layer Hybrid composition
         return Container(
             decoration: BoxDecoration(border: Border.all(width: 1)),
-            child: viewType == PlatformViewType.kInputPureFlutter
-                ? InputGridViewWidget()
-                : AndroidView(
-                    viewType: platformViewTypeAsString(viewType),
-                    layoutDirection: TextDirection.ltr,
-                    creationParams: creationParams,
-                    creationParamsCodec: const StandardMessageCodec(),
-                  ));
+            child: createChild(viewType, creationParams)
+        );
       default:
         throw UnsupportedError(
             'Unsupported TargetPlatform: $defaultTargetPlatform');

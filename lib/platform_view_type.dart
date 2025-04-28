@@ -3,6 +3,7 @@ enum PlatformViewType {
   kInput,
   kInputPureFlutter,
   kAnimatedSurfaceView,
+  kHcpp,
 }
 
 String platformViewTypeAsString(PlatformViewType viewType) {
@@ -15,6 +16,8 @@ String platformViewTypeAsString(PlatformViewType viewType) {
       return 'input-grid-view-flutter';
     case PlatformViewType.kAnimatedSurfaceView:
       return 'animated-surface-view';
+    case PlatformViewType.kHcpp:
+      return 'hybrid-composition++';
   }
 }
 
