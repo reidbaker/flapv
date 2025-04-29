@@ -86,6 +86,17 @@ class StartPage extends StatelessWidget {
                 );
               },
             ),
+            ElevatedButton(
+              child: const Text('Gen4'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PlatformViewHolder(
+                          viewType: PlatformViewType.kGen4)),
+                );
+              },
+            ),
           ],
         ),
       ),
