@@ -129,81 +129,84 @@ class Gen4PlatformViewWidget extends StatefulWidget {
 }
 
 class _Gen4PlatformViewWidgetState extends State<Gen4PlatformViewWidget> {
-  late final Future<bool> _supportedCheck;
-  late final Future<String> _calculation;
+  static Future<bool>? _supportedCheck;
+  // Tri-state bool where null indicates it was never set.
+  // It is unsafe to set this value to null after being set to non null once.
+  static bool? _hcppSupported;
 
   @override
   void initState() {
     super.initState();
-    _supportedCheck = HybridAndroidViewController.checkIfSupported();
-    _calculation = Future<String>.delayed(
-      const Duration(seconds: 1),
-      () => 'Data Loaded',
-    );
-    debugPrint('init state called');
-    _supportedCheck.then((value) => debugPrint('success: $value'),
-        onError: (error) => debugPrint('Error: $error'));
-    // Future<bool>.delayed(
-    //   const Duration(seconds: 2),
-    //   () {
-    //     debugPrint('Supported called');
-    //     return HybridAndroidViewController.checkIfSupported();
-    //   },
-    // ).then((value) => debugPrint('success: $value'), onError: (error) => debugPrint('Error: $error'));
+    // If we have not calculated hcpp support and no other class has
+    // started checking for the support then kick off the async work
+    // and save the result.
+    if (_hcppSupported == null && _supportedCheck == null) {
+      _supportedCheck = () async {
+        return _hcppSupported =
+            await HybridAndroidViewController.checkIfSupported();
+      }();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Local copy to avoid mid evaluation state change.
+    final bool? localhcppSupportState = _hcppSupported;
+    // TODO bias towards hcpp if api level is high enough and impeller is enabled.
+    // Possibly using ApplicationInfo ai = getPackageManager().getApplicationInfo(this.getPackageName(), PackageManager.GET_META_DATA);
+    // a non false value would indicate impeller enabled.
+    if (localhcppSupportState == null) {
     return FutureBuilder(
         future: _supportedCheck,
-        builder: (BuildContext context, AsyncSnapshot<bool> supported) {
-          return FutureBuilder(
-              future: _calculation,
-              builder: (BuildContext context, AsyncSnapshot<String> calc) {
-                debugPrint('Calc: ${calc.data}');
-                if (supported.hasError) {
-                  debugPrint('Could not determine hcpp support');
-                }
-                debugPrint(
-                    "checkIfSupported: ${supported.data}, ${supported.connectionState}");
-            return PlatformViewLink(
-                  viewType: platformViewTypeAsString(PlatformViewType.kGen4),
-              surfaceFactory:
-                  (BuildContext context, PlatformViewController controller) {
-                return AndroidViewSurface(
-                  controller: controller as AndroidViewController,
-                  gestureRecognizers: const <Factory<
-                      OneSequenceGestureRecognizer>>{},
-                  hitTestBehavior: PlatformViewHitTestBehavior.translucent,
-                );
-              },
-              onCreatePlatformView: (PlatformViewCreationParams params) {
-                if (supported.data == true) {
-                  return PlatformViewsService.initHybridAndroidView(
-                    id: params.id,
-                        viewType:
-                            platformViewTypeAsString(PlatformViewType.kGen4),
-                    layoutDirection: TextDirection.ltr,
-                    creationParamsCodec: const StandardMessageCodec(),
-                  )
-                    ..addOnPlatformViewCreatedListener(
-                        params.onPlatformViewCreated)
-                    ..create();
-                } else {
-                  return PlatformViewsService.initSurfaceAndroidView(
-                    id: params.id,
-                        viewType:
-                            platformViewTypeAsString(PlatformViewType.kGen4),
-                        layoutDirection: TextDirection.ltr,
-                    creationParamsCodec: const StandardMessageCodec(),
-                  )
-                    ..addOnPlatformViewCreatedListener(
-                        params.onPlatformViewCreated)
-                    ..create();
-                }
-              },
-            );
+          builder: (BuildContext context, AsyncSnapshot<bool> supported) {
+            if (supported.hasError) {
+              debugPrint(
+                  'Could not determine hcpp support assuming unsupported.');
+            } else {
+              debugPrint(
+                  "checkIfSupported: ${supported.data}, ${supported.connectionState}");
+            }
+            return _createPvWithKnownSupport(supported.data ?? false);
           });
-        });
+    } else {
+      debugPrint("checkIfSupported Known: $localhcppSupportState");
+      return _createPvWithKnownSupport(localhcppSupportState);
+    }
+  }
+
+  /// Helper method to abstract away the source of hcpp support.
+  PlatformViewLink _createPvWithKnownSupport(bool canUseHcpp) {
+    return PlatformViewLink(
+      viewType: platformViewTypeAsString(PlatformViewType.kGen4),
+      surfaceFactory:
+          (BuildContext context, PlatformViewController controller) {
+        return AndroidViewSurface(
+          controller: controller as AndroidViewController,
+          gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+          hitTestBehavior: PlatformViewHitTestBehavior.translucent,
+        );
+      },
+      onCreatePlatformView: (PlatformViewCreationParams params) {
+        if (canUseHcpp) {
+          return PlatformViewsService.initHybridAndroidView(
+            id: params.id,
+            viewType: platformViewTypeAsString(PlatformViewType.kGen4),
+            layoutDirection: TextDirection.ltr,
+            creationParamsCodec: const StandardMessageCodec(),
+          )
+            ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+            ..create();
+        } else {
+          return PlatformViewsService.initSurfaceAndroidView(
+            id: params.id,
+            viewType: platformViewTypeAsString(PlatformViewType.kGen4),
+            layoutDirection: TextDirection.ltr,
+            creationParamsCodec: const StandardMessageCodec(),
+          )
+            ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+            ..create();
+        }
+      },
+    );
   }
 }
