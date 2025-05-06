@@ -178,35 +178,42 @@ class _Gen4PlatformViewWidgetState extends State<Gen4PlatformViewWidget> {
   PlatformViewLink _createPvWithKnownSupport(bool canUseHcpp) {
     return PlatformViewLink(
       viewType: platformViewTypeAsString(PlatformViewType.kGen4),
-      surfaceFactory:
-          (BuildContext context, PlatformViewController controller) {
-        return AndroidViewSurface(
-          controller: controller as AndroidViewController,
-          gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
-          hitTestBehavior: PlatformViewHitTestBehavior.translucent,
-        );
-      },
+      surfaceFactory: _createSurfaceFactory,
       onCreatePlatformView: (PlatformViewCreationParams params) {
-        if (canUseHcpp) {
-          return PlatformViewsService.initHybridAndroidView(
-            id: params.id,
-            viewType: platformViewTypeAsString(PlatformViewType.kGen4),
-            layoutDirection: TextDirection.ltr,
-            creationParamsCodec: const StandardMessageCodec(),
-          )
-            ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
-            ..create();
-        } else {
-          return PlatformViewsService.initSurfaceAndroidView(
-            id: params.id,
-            viewType: platformViewTypeAsString(PlatformViewType.kGen4),
-            layoutDirection: TextDirection.ltr,
-            creationParamsCodec: const StandardMessageCodec(),
-          )
-            ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
-            ..create();
-        }
+        var viewController = _createViewContoller(canUseHcpp, params.id);
+        return viewController
+          ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+          ..create();
       },
     );
+  }
+
+  AndroidViewSurface _createSurfaceFactory(
+      BuildContext context, PlatformViewController controller) {
+    return AndroidViewSurface(
+      controller: controller as AndroidViewController,
+      gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+      hitTestBehavior: PlatformViewHitTestBehavior.translucent,
+    );
+  }
+
+  AndroidViewController _createViewContoller(bool canUseHcpp, int id) {
+    if (canUseHcpp) {
+      var initHybridAndroidView = PlatformViewsService.initHybridAndroidView(
+        id: id,
+        viewType: platformViewTypeAsString(PlatformViewType.kGen4),
+        layoutDirection: TextDirection.ltr,
+        creationParamsCodec: const StandardMessageCodec(),
+      );
+      return initHybridAndroidView;
+    } else {
+      var initSurfaceAndroidView = PlatformViewsService.initSurfaceAndroidView(
+        id: id,
+            viewType: platformViewTypeAsString(PlatformViewType.kGen4),
+            layoutDirection: TextDirection.ltr,
+        creationParamsCodec: const StandardMessageCodec(),
+      );
+      return initSurfaceAndroidView;
+    }
   }
 }
