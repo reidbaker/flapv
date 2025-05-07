@@ -135,11 +135,12 @@ class AnimatedSurfaceView implements PlatformView {
         return true;
       }
     });
+    // TODO add input text box.
     textView = new TextView(context);
     textView.setTextSize(20);
     textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
     textView.setTextColor(Color.BLUE);
-    textView.setText("text view");
+    textView.setText("AnimatedSurfaceView");
     rootView.addView(textView);
     // Workaround to avoid being put into a virtual display backend.
     // After a delay, add the surfaceView to the viewGroup.

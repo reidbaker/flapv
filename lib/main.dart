@@ -9,6 +9,8 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  // TODO kick off hcpp state fetch early.
+
 
   // This widget is the root of your application.
   @override
@@ -18,6 +20,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: <TargetPlatform, PageTransitionsBuilder>{
+            TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+          },
+        ),
       ),
       home: const StartPage(),
     );

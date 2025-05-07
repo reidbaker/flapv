@@ -125,11 +125,11 @@ class Gen4PlatformViewWidget extends StatefulWidget {
     super.key,
   });
   @override
-  State<Gen4PlatformViewWidget> createState() => _Gen4PlatformViewWidgetState();
+  State<Gen4PlatformViewWidget> createState() => Gen4PlatformViewWidgetState();
 }
 
-class _Gen4PlatformViewWidgetState extends State<Gen4PlatformViewWidget> {
-  static Future<bool>? _supportedCheck;
+class Gen4PlatformViewWidgetState extends State<Gen4PlatformViewWidget> {
+  static Future<bool>? supportedCheck;
   // Tri-state bool where null indicates it was never set.
   // It is unsafe to set this value to null after being set to non null once.
   static bool? _hcppSupported;
@@ -140,8 +140,8 @@ class _Gen4PlatformViewWidgetState extends State<Gen4PlatformViewWidget> {
     // If we have not calculated hcpp support and no other class has
     // started checking for the support then kick off the async work
     // and save the result.
-    if (_hcppSupported == null && _supportedCheck == null) {
-      _supportedCheck = () async {
+    if (_hcppSupported == null && supportedCheck == null) {
+      supportedCheck = () async {
         return _hcppSupported =
             await HybridAndroidViewController.checkIfSupported();
       }();
@@ -157,7 +157,7 @@ class _Gen4PlatformViewWidgetState extends State<Gen4PlatformViewWidget> {
     // a non false value would indicate impeller enabled.
     if (localhcppSupportState == null) {
     return FutureBuilder(
-        future: _supportedCheck,
+        future: supportedCheck,
           builder: (BuildContext context, AsyncSnapshot<bool> supported) {
             if (supported.hasError) {
               debugPrint(
@@ -166,7 +166,12 @@ class _Gen4PlatformViewWidgetState extends State<Gen4PlatformViewWidget> {
               debugPrint(
                   "checkIfSupported: ${supported.data}, ${supported.connectionState}");
             }
-            return _createPvWithKnownSupport(supported.data ?? false);
+            if (supported.data != null) {
+              // TODO debug why we dont get a second _createViewContoller call.
+              return _createPvWithKnownSupport(supported.data!);
+            } else {
+              return Container();
+            }
           });
     } else {
       debugPrint("checkIfSupported Known: $localhcppSupportState");
@@ -198,6 +203,7 @@ class _Gen4PlatformViewWidgetState extends State<Gen4PlatformViewWidget> {
   }
 
   AndroidViewController _createViewContoller(bool canUseHcpp, int id) {
+    debugPrint('_createViewContoller id= $id, hcpp: $canUseHcpp');
     if (canUseHcpp) {
       var initHybridAndroidView = PlatformViewsService.initHybridAndroidView(
         id: id,
