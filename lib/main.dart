@@ -1,3 +1,4 @@
+import 'package:flapv/platform_view.dart';
 import 'package:flutter/material.dart';
 
 import 'platform_view_holder.dart';
@@ -9,8 +10,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  // TODO kick off hcpp state fetch early.
-
 
   // This widget is the root of your application.
   @override
@@ -36,6 +35,7 @@ class StartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    HcppPlatformViewSupportHandler.determineSupported();
     return Scaffold(
       appBar: AppBar(title: const Text('APV Debug Demo')),
       body: Center(
