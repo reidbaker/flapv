@@ -175,7 +175,6 @@ class AndroidView2 extends StatefulWidget {
     this.onPlatformViewCreated,
     this.hitTestBehavior = PlatformViewHitTestBehavior.opaque,
     this.layoutDirection,
-    this.clipBehavior = Clip.hardEdge,
 
   });
   /// The unique identifier for Android view type to be embedded by this widget.
@@ -208,11 +207,6 @@ class AndroidView2 extends StatefulWidget {
   /// If this is null, the ambient [Directionality] is used instead.
   /// {@endtemplate}
   final TextDirection? layoutDirection;
-
-  /// {@macro flutter.material.Material.clipBehavior}
-  ///
-  /// Defaults to [Clip.hardEdge].
-  final Clip clipBehavior; // TODO(reidbaker): figure out how this is supposed to work. 
 
   @override
   State<AndroidView2> createState() => _AndroidView2State();
